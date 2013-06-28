@@ -1,0 +1,18 @@
+#!/usr/local/bin/zsh
+
+pathSrc="/Users/zuxfoucault/Music/iTunes/iTunes Media/Podcasts/The Economist_ All audio/"
+pathDst="/Volumes/NO NAME/Podcasts/The Economist_ All audio/"
+timeRef="/Users/zuxfoucault/podSync/timestamp"
+
+#initiate
+#find $pathSrc -mindepth 1 -exec rsync -av --exclude ".DS_Store" {} $pathDst \;
+
+#sync
+rsync -avn --delete --exclude ".DS_Store" $pathSrc $pathDst > tmpL 
+grep deleting tmpL | cut -d " " -f 2- | sed 's/^/\/Volumes\/NO NAME\/Podcasts\/The Economist_ All audio\//' | sed -e 's/^/"/' -e 's/$/"/' > tmpD
+xargs -I{} sh -c 'rm "{}"' < tmpD
+find $pathSrc -mindepth 1 -newer $timeRef -exec rsync --exclude ".DS_Store" -av {} $pathDst \;
+rsync -av --delete --exclude ".DS_Store" $pathDst $pathSrc
+
+rm tmpL tmpD
+echo `date` > timestamp
